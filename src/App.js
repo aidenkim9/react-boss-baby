@@ -1,49 +1,58 @@
 import { useEffect, useState } from "react";
 
 function App() {
-  const [work, setWork] = useState("");
-  const [todos, setTotodos] = useState([]);
-
-  const onSubmit = (event) => {
-    event.preventDefault();
-    setTotodos((current) => [...current, work]);
-    setWork("");
-  };
-  const onChange = (event) => {
-    setWork(event.target.value);
-  };
-  const onClick = (event) => {
-    const delTodo = event.target.parentElement.id;
-    setTotodos((current) => current.filter((item) => item !== delTodo));
-  };
+  const [loading, setLoading] = useState(true);
+  const [coins, setCoins] = useState([]);
+  const [selectedCoin, setSelectedCoin] = useState(0);
+  const [coin, setCoin] = useState("");
 
   useEffect(() => {
-    console.log(todos);
-  }, [todos]);
+    fetch("https://api.coinpaprika.com/v1/tickers")
+      .then((response) => response.json())
+      .then((data) => {
+        setCoins(data);
+        setLoading(false);
+      });
+  }, []);
+
+  const onChange = (event) => {
+    setSelectedCoin(event.target.value);
+  };
+  const moneyInput = (event) => {
+    setCoin(event.target.value);
+  };
+
   return (
-    <div className="App">
-      <h1>
-        My to dos (
-        {todos.length === 0 ? "Add your today's work!" : todos.length})
-      </h1>
-      <form onSubmit={onSubmit}>
-        <input
-          value={work}
-          onChange={onChange}
-          type="text"
-          placeholder="What's today's work?"
-        />
-        <button>Add</button>
-      </form>
-      <hr />
-      <ul>
-        {todos.map((todo, index) => (
-          <li id={todo} key={index}>
-            {todo}
-            <button onClick={onClick}> ❌</button>
-          </li>
-        ))}
-      </ul>
+    <div>
+      <h1>Coins {loading ? "" : `(${coins.length})`}</h1>
+      {loading ? (
+        <strong>Loading...</strong>
+      ) : (
+        <div>
+          <select onChange={onChange}>
+            <option value="0">Choose Coin</option>
+            {coins.map((coin) => {
+              return (
+                <option value={coin.quotes.USD.price} key={coin.id}>
+                  {coin.name}({coin.symbol}): {coin.quotes.USD.price} USD
+                </option>
+              );
+            })}
+          </select>
+          <div>
+            <input
+              value={coin}
+              onChange={moneyInput}
+              type="number"
+              placeholder="Fill your money"
+            />
+          </div>
+          <hr />
+          {selectedCoin === 0 ? null : (
+            <h1>You can buy {coin / selectedCoin}</h1>
+          )}
+        </div>
+      )}
     </div>
   );
 }
