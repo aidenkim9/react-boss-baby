@@ -1,0 +1,15 @@
+.movie {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: cadetblue;
+  width: 400px;
+  padding: 10px;
+}
+
+.movie__link {
+  margin: 10px 0px;
+  font-size: 18px;
+  font-weight: bold;
+}
